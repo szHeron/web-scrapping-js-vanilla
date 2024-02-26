@@ -5,10 +5,10 @@ Observações:
 Tentei deixar o projeto mais realista, modulando responsabilidades por meio de funções e também como se as informações necessárias já fossem especificadas pelo cliente(Requisitos) do projeto. Abaixo informo a lista de informações que o WebScrapper está extraindo.
 
 - [x] Nome.
+- [x] Imagem.
 - [x] Código de Barras.
 - [x] Marcas.
 - [x] Quantidade.
-- [x] Embalagem.
 - [x] Paises que são vendidos.
 - [x] Categorias.
 - [x] Scores.
@@ -23,3 +23,4 @@ Tentei deixar o projeto mais realista, modulando responsabilidades por meio de f
     - ("Unknow") se não possuir informações.
 - [x] Dados nutricionais.
 - [x] Valores nutricionais.
+- [x] Tamanho da porção.

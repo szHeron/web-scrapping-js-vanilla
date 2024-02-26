@@ -1,45 +1,42 @@
 const food = {}
 
 function Start(){
-    GetBasicInformations()
-    GetScore()
-    GetIngredients()
+    food.informations = GetBasicInformations()
+    food.scores = GetScore()
+    food.ingredients = GetIngredients()
+    food.nutrition = GetNutrition()
     console.log(food)
 }
 
 function GetBasicInformations(){
-    const informations = {
-        title: '',
-        barcode: '',
-        brands: '',
-        quantity: '',
-        countries: '',
-        packaging: ''
-    }
-    informations.title = document.querySelector('.title-1').innerText
-    informations.barcode = document.querySelector('#barcode').innerText
-    
+    const informations = {}
+    const title = document.querySelector('.title-1')
+    const barcode = document.querySelector('#barcode')
+    const image = document.querySelector('#og_image')
+    const restOfinformationNamesForScrapping = ['brands', 'countries', 'quantity', 'categories']
     const informationElements = [...document.querySelectorAll('.field_value')].map(item => {
         return {
-            information: item.id.match(/_(.+)_/)?.[1],
+            informationName: item.id.match(/_(.+)_/)?.[1],
             informationText: item.innerText
         }
     })
-    const informationNamesForScrapping = ['brands', 'countries', 'quantity', 'categories', 'packaging']
-    informationNamesForScrapping.forEach(infoName => {
-        const info = informationElements.find(item => item.information === infoName)
-        informations[infoName] = info?info.informationText:'Unknown'
+
+    restOfinformationNamesForScrapping.forEach(name => {
+        const info = informationElements.find(item => item.informationName === name)
+        informations[name] = info?info.informationText:'Unknown'
     })
-    food.informations = informations
+
+    informations.title = title?title.innerText:'Unknown'
+    informations.barcode = barcode?barcode.innerText:'Unknown'
+    informations.image = image?image.src:'Unknown'
+
+    return informations
 }
 
 function GetScore(){
-    const scores = {
-        nutriscore: '',
-        nova: '',
-        ecoscore: ''
-    }
+    const scores = {}
     const scoreNamesForScrapping = ['nutriscore', 'nova', 'ecoscore']
+
     scoreNamesForScrapping.forEach(scoreName => {
         const element = document.querySelector(`[href="#panel_${scoreName}"]`);
         const scoreValue = element.querySelector('h4').className.match(/_(.+)_/)?.[1].includes('unknown')?'Unknown':element.querySelector('h4').innerText
@@ -50,7 +47,8 @@ function GetScore(){
         }
         scores[scoreName] = score
     });
-    food.scores = scores
+
+    return scores
 }
 
 
@@ -62,6 +60,7 @@ function GetIngredients(){
         list: ''
     }
     const ingredientAnalysisElements = [...document.querySelectorAll('a[href*="#panel_ingredients_analysis"]')].map(item => item.querySelector('h4').innerText)
+
     if(ingredientAnalysisElements.length > 0){
         ingredientAnalysisElements.slice(0,3).forEach(item => {
             item = item.toLocaleUpperCase()
@@ -73,9 +72,11 @@ function GetIngredients(){
                 ingredients.hasPalmOil = IngredientAnalysis(item)
             }
         })
+
         ingredients.list = document.querySelector('#panel_ingredients_content').querySelector('.panel_text').innerText
     }
-    food.ingredients = ingredients
+
+    return ingredients
 }
 
 function IngredientAnalysis(ingredient){
@@ -86,6 +87,41 @@ function IngredientAnalysis(ingredient){
     }else{
         return true
     }
+}
+
+function GetNutrition(){
+    const nutrition = {}
+    const nutritionValuesElement = document.querySelector('#panel_nutrient_levels_content')
+    const servingSize = document.querySelector('#panel_serving_size_content')
+
+    if(nutritionValuesElement){
+        nutrition.nutritionValues = [...nutritionValuesElement.querySelectorAll('h4')].map(item => item.innerText)
+    }else{
+        nutrition.nutritionValues = 'Unknown'
+    }
+
+    nutrition.nutritionData = GetNutritionDataTable()
+    nutrition.servingSize = servingSize?servingSize.innerText:'Unknown'
+
+    return nutrition
+}
+
+function GetNutritionDataTable(){
+    const nutritionData = {}
+    const tableBodyElement = [...document.querySelector('[aria-label="Dados nutricionais"]').querySelectorAll('tr')]
+
+    tableBodyElement.slice(1,tableBodyElement.length).forEach(tr => {
+        const data = [...tr.querySelectorAll('td')].map(item => item.innerText)
+        const per100g = data[1].length > 1?data[1].replace('\n', ''):'Unknown'
+        const perServing = data[2].length > 1?data[2].replace('\n', ''):'Unknown'
+
+        nutritionData[data[0]] = {
+            per100g,
+            perServing
+        }
+    })
+    
+    return nutritionData
 }
 
 Start()
